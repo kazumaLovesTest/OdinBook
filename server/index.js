@@ -1,8 +1,9 @@
 const http = require('http')
+const app = require('./app')
+const config = require('./utils/config')
 
-const app = http.createServer((request, response) => {
-  response.writeHead(200, { 'Content-type': 'text/plain' })
-  response.end('hello world')
+const server = http.createServer(app)
+
+server.listen(config.PORT, () => {
+  console.log(`Listening on Port: ${config.PORT}`)
 })
-
-app.listen(3001)

@@ -5,12 +5,9 @@ const mongoose = require('mongoose')
 const User = require('../model/user')
 
 describe('Creating user', () => {
-  jest.setTimeout(() => {
-    
-  }, 15000);
   beforeEach(async () => {
     await User.deleteMany({})
-  },15000)
+  },20000)
 
   const user = {
     name:"Mekbib",
@@ -50,6 +47,21 @@ describe('Creating user', () => {
 
     expect(usersInDb).toHaveLength(0)
   },15000)
+  test.only('User with the a username already taken will not be created\
+  app will give appropriate response', async () => {
+    await api.post('/OdinBook/user')
+    .send(user)
+    .expect(201)
+
+    await api.post('/OdinBook/user')
+    .send(user)
+    .expect(400)
+
+    const usersInDb = await User.find({})
+    
+    expect(usersInDb).toHaveLength(1)
+  },15000)
+
 })
 
 afterAll(() => {

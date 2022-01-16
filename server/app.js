@@ -3,6 +3,7 @@ const app = express()
 const moongose = require('mongoose')
 const userRoute = require('./controller/user')
 const config = require('./utils/config')
+const middleware = require('./utils/middleware')
 
 moongose.connect(config.MONGODB_URI, () => {
   console.log(`connected to ${config.MONGODB_URI}`)
@@ -13,4 +14,5 @@ moongose.connect(config.MONGODB_URI, () => {
 app.use(express.json())
 app.use('/OdinBook/user', userRoute)
 
+app.use(middleware.handleValidationError)
 module.exports = app

@@ -5,6 +5,11 @@ const bcrypt = require('bcrypt')
 userRoute.post('/', (req, res) => {
   const body = req.body
 
+  if (!body.name || !body.username)
+    return res.status(400).json({
+      error:"Missing Content",
+    })
+
   const saltRound = 10
   const passwordHash = bcrypt.hash(saltRound, body.password, function(err,hash){
     return hash

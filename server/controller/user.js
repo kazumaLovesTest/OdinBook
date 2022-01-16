@@ -1,8 +1,9 @@
 const User = require('../model/user')
 const userRoute = require('express').Router()
 const bcrypt = require('bcrypt')
+ 
 
-userRoute.post('/', (req, res) => {
+userRoute.post('/', (req, res, next) => {
   const body = req.body
 
   if (!body.name || !body.username)
@@ -23,7 +24,8 @@ userRoute.post('/', (req, res) => {
 
   user.save().then(() => {
     return res.status(201).end()
-  })
+  }).catch (error =>  next(error))
+  
 })
 
 module.exports = userRoute

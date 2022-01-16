@@ -7,37 +7,42 @@ const User = require('../model/user')
 describe('Creating user', () => {
   beforeEach(async () => {
     await User.deleteMany({})
-  },20000)
+  }, 20000)
 
   const user = {
-    name:"Mekbib",
-    username:"kazuma",
-    password:"thePower"
+    name: "Mekbib",
+    username: "kazuma",
+    password: "thePower"
+  }
+  const userWithSmallUsername = {
+    name: "Mekbib",
+    username: "kaz",
+    password: "thePower"
   }
   const userWithNoName = {
-    username:"kazuma",
-    password:"thePower"
+    username: "kazuma",
+    password: "thePower"
   }
   const userWithNoUserName = {
-    name:"Mekbib",
-    password:"thePower"
+    name: "Mekbib",
+    password: "thePower"
   }
 
   test("User is succesfully created when all required attributes are given", async () => {
     await api.post('/OdinBook/user')
-    .send(user)
-    .expect(201)
+      .send(user)
+      .expect(201)
 
-    const usersInDb  = await User.find({})
+    const usersInDb = await User.find({})
 
     expect(usersInDb).toHaveLength(1)
-  },15000)
+  }, 15000)
 
   test("User is not created when required attributes are not given and\
-   we recieve a proper status code", async()=>{
+   we recieve a proper status code", async () => {
     await api.post('/OdinBook/user')
-    .send(userWithNoName)
-    .expect(400)
+      .send(userWithNoName)
+      .expect(400)
 
     await api.post('/OdinBook/user')
       .send(userWithNoUserName)
@@ -46,22 +51,30 @@ describe('Creating user', () => {
     const usersInDb = await User.find({})
 
     expect(usersInDb).toHaveLength(0)
-  },15000)
-  test.only('User with the a username already taken will not be created\
+  }, 15000)
+  test('User with the a username already taken will not be created\
   app will give appropriate response', async () => {
     await api.post('/OdinBook/user')
-    .send(user)
-    .expect(201)
+      .send(user)
+      .expect(201)
 
     await api.post('/OdinBook/user')
-    .send(user)
-    .expect(400)
+      .send(user)
+      .expect(400)
 
     const usersInDb = await User.find({})
-    
-    expect(usersInDb).toHaveLength(1)
-  },15000)
 
+    expect(usersInDb).toHaveLength(1)
+  }, 15000)
+  test('User with small username wont be saved', async () => {
+    await api.post('/OdinBook/user')
+      .send(userWithSmallUsername)
+      .expect(400)
+
+    const usersInDb = await User.find({})
+
+    expect(usersInDb).toHaveLength(0)
+  })
 })
 
 afterAll(() => {

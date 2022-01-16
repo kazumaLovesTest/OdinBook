@@ -8,6 +8,7 @@ const userSchema = new mongoose.Schema({
   },
   username:{
     type:String,
+    minlength:[6, 'Must be atleast 6 but got {Value}'],
     required:true,
     unique:true,
   },

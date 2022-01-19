@@ -1,5 +1,6 @@
 const express = require('express')
 const app = express()
+const cors = require('cors')
 const moongose = require('mongoose')
 const userRoute = require('./controller/user')
 const loginRoute = require('./controller/login')
@@ -12,6 +13,7 @@ moongose.connect(config.MONGODB_URI, () => {
   console.log(`couldnt connect because ${err.message}`)
 })
 
+app.use(cors)
 app.use(express.json())
 app.use('/OdinBook/user', userRoute)
 app.use('/OdinBook/login',loginRoute)

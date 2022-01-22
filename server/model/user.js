@@ -15,6 +15,14 @@ const userSchema = new mongoose.Schema({
   passwordHash:{
     type:String,
     required:true,
+  },
+  friends:[{
+    type:[mongoose.ObjectId],
+    required:false
+  },],
+  friendRequest:{
+    type:[mongoose.ObjectId],
+    required:false
   }
 })
 

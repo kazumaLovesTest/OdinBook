@@ -19,9 +19,11 @@ moongose.connect(config.MONGODB_URI, () => {
 app.use(express.json())
 app.use(cors())
 
+app.use(middleware.tokenExtractor)
 app.use('/OdinBook/user', userRoute)
 app.use('/OdinBook/login',loginRoute)
 app.use(middleware.handleValidationError)
+
 
 if (process.env.NODE_ENV === "test")
   app.use('/OdinBook/reset',resetRoute)

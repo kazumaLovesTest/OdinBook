@@ -10,7 +10,7 @@ loginRoute.post('/', async (req,res) => {
   const user = await User.findOne({username:body.username})
   const isCorrectPassword = await bcrypt.compare(body.password,user.passwordHash)
 
-  if (isCorrectPassword == false)
+  if (isCorrectPassword === false)
     return res.status(401).json({
       error:"Wrong username or Password"
     })

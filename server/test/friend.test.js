@@ -9,29 +9,54 @@ const User = require('../model/user')
 describe("Friend requests", () => {
 
   const saltRound = 10
-  const passwordHash = bcrypt.hashSync(thePower, saltRound)
-
-  const user = new User({
-    name: mekbib,
-    username: kazuma,
-    passwordHash
-  })
-  const userToRequest = new User({
-    name: ayalew,
-    username: flower,
-    passwordHash
-  })
+  const passwordHash = bcrypt.hashSync('thePower', saltRound)
+  let header;
 
   beforeEach(async () => {
+
+    const user = new User({
+      name: 'mekbib',
+      username: 'kazuma',
+      passwordHash
+    })
+    const secondUser = new User({
+      name: 'ayalew',
+      username: 'flower',
+      passwordHash
+    })
+
+    
     await User.deleteMany({})
 
     await user.save()
-    await userToRequest.save()
-  })
+    await secondUser.save()
+
+    const userToLogin = {
+      name: 'mekbib',
+      username: 'kazuma',
+      password: 'thePower'
+    }
+    const result = await api.post('/OdinBook/login')
+      .send(userToLogin)
+      .expect(200)
+      
+    header = { 'Authorization': `bearer ${result.body.token}` }
+  }, 50000)
+
+
 
   test('user can send friend request', async () => {
+    const userToSendRequestTo = {
+      name: 'ayalew',
+      username: 'flower',
+    }
     await api.post('/OdinBook/user/friend_request')
-             .send(userToRequest)
-             .expect(200)
-  })
+      .send(userToSendRequestTo)
+      .set(header)
+      .expect(201)
+
+    const userInDb = (await User.findOne(userToSendRequestTo)).toJSON()
+ 
+    expect(userInDb.friendRequest).toHaveLength(1)
+  },20000)
 })

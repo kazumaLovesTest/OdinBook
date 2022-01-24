@@ -17,13 +17,13 @@ const userSchema = new mongoose.Schema({
     required:true,
   },
   friends:[{
-    type:[mongoose.ObjectId],
-    required:false
-  },],
-  friendRequest:{
-    type:[mongoose.ObjectId],
-    required:false
-  }
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'User'
+  }],
+  friendRequest:[{
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'User'
+  }]
 })
 
 userSchema.plugin(uniqueValidator)

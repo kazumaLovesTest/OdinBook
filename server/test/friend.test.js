@@ -7,7 +7,6 @@ const mongoose = require('mongoose')
 const User = require('../model/user')
 
 describe("Friend requests", () => {
-
   const saltRound = 10
   const passwordHash = bcrypt.hashSync('thePower', saltRound)
   let header;
@@ -25,7 +24,7 @@ describe("Friend requests", () => {
       passwordHash
     })
 
-    
+
     await User.deleteMany({})
 
     await user.save()
@@ -39,7 +38,7 @@ describe("Friend requests", () => {
     const result = await api.post('/OdinBook/login')
       .send(userToLogin)
       .expect(200)
-      
+
     header = { 'Authorization': `bearer ${result.body.token}` }
   }, 50000)
 
@@ -56,7 +55,21 @@ describe("Friend requests", () => {
       .expect(201)
 
     const userInDb = (await User.findOne(userToSendRequestTo)).toJSON()
- 
+
     expect(userInDb.friendRequest).toHaveLength(1)
-  },20000)
+  }, 20000)
+
+  test('user can not send friend request if no token is provided', async () => {
+    const userToSendRequestTo = {
+      name: 'ayalew',
+      username: 'flower',
+    }
+    await api.post('/OdinBook/user/friend_request')
+      .send(userToSendRequestTo)
+      .expect(401)
+
+    const userInDb = (await User.findOne(userToSendRequestTo)).toJSON()
+
+    expect(userInDb.friendRequest).toHaveLength(0)
+  }, 20000)
 })

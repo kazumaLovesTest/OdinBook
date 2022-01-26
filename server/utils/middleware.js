@@ -1,10 +1,14 @@
-const JWT = require('jsonwebtoken')
+const jwt = require('jsonwebtoken')
 const User = require('../model/user')
 
 const handleValidationError = (error, req, res, next) => {
   if (error.name === 'ValidationError')
     return res.status(400).json({
       error: error.message
+    })
+  if (error.name === 'JsonWebTokenError')
+    return res.status(401).json({
+      error:error.message
     })
   next()
 }
@@ -20,18 +24,18 @@ const tokenExtractor = (req, res, next) => {
 }
 
 const userExtractor = async(req,res,next) => {
-  const token = req.token
-  const decodedToken =  JWT.verify(token,process.env.SECRET)
+  let decodedToken;
 
-  if (token === null || !decodedToken)
-    res.status(401).json({
-      error:error.message,
-    })
-  
+  try {
+    decodedToken = jwt.verify(req.token,process.env.SECRET)
+  }
+  catch(error) {
+    next(error)
+  }
   const user = await User.findOne(decodedToken)
 
   req.user = user
-
+  
   next()
 }
 module.exports = { handleValidationError,tokenExtractor,userExtractor}

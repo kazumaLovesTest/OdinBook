@@ -20,7 +20,7 @@ const userSchema = new mongoose.Schema({
     type:mongoose.Schema.Types.ObjectId,
     ref:'User'
   }],
-  friendRequest:[{
+  friendRequests:[{
     type:mongoose.Schema.Types.ObjectId,
     ref:'User'
   }]

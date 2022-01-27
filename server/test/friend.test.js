@@ -49,7 +49,7 @@ describe("Friend requests", () => {
       name: 'ayalew',
       username: 'flower',
     }
-    await api.post('/OdinBook/user/friend_request')
+    await api.post('/OdinBook/friend-request')
       .send(userToSendRequestTo)
       .set(header)
       .expect(201)
@@ -64,12 +64,47 @@ describe("Friend requests", () => {
       name: 'ayalew',
       username: 'flower',
     }
-    await api.post('/OdinBook/user/friend_request')
+    await api.post('/OdinBook/friend-request')
       .send(userToSendRequestTo)
       .expect(401)
 
     const userInDb = (await User.findOne(userToSendRequestTo)).toJSON()
 
-    expect(userInDb.friendRequest).toHaveLength(0)
+    expect(userInDb.friendRequests).toHaveLength(0)
   }, 20000)
+
+  describe('accepting and rejecting friend requests', () => {
+    beforeEach(async () => {
+      const loggedInUser = await User.findOne({ username: 'kazuma' })
+      const friendRequestUser = await User.findOne({ username: 'flower' })
+
+      loggedInUser.friendRequests = loggedInUser.friendRequests.concat(friendRequestUser._id)
+
+      await loggedInUser.save()
+    }, 20000)
+
+    test("Accepting friend requests", async () => {
+      const users = {
+        loggedInUser: {
+          username: 'kazuma'
+        },
+        friendRequestUser: {
+          username: 'flower'
+        }
+      }
+      await api.post('/OdinBook/friend-request/accept')
+        .send(users)
+        .set(header)
+        .expect(201)
+
+      const userInDb = (await User.findOne({ username: 'kazuma' })).toJSON()
+
+      expect(userInDb.friendRequests).toHaveLength(0)
+      expect(userInDb.friends).toHaveLength(1)
+    })
+  })
+})
+
+afterAll(() => {
+  mongoose.connection.close()
 })

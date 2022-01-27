@@ -5,6 +5,7 @@ const moongose = require('mongoose')
 const userRoute = require('./controller/user')
 const loginRoute = require('./controller/login')
 const resetRoute = require('./controller/reset')
+const friendRequestRoute = require('./controller/friendRequest')
 const config = require('./utils/config')
 const middleware = require('./utils/middleware')
 
@@ -22,6 +23,7 @@ app.use(cors())
 app.use(middleware.tokenExtractor)
 app.use('/OdinBook/user', userRoute)
 app.use('/OdinBook/login',loginRoute)
+app.use('/OdinBook/friend-request',friendRequestRoute)
 app.use(middleware.handleValidationError)
 
 

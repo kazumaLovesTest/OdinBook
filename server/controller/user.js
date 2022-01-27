@@ -26,19 +26,4 @@ userRoute.post('/', (req, res, next) => {
 
 })
 
-userRoute.post('/friend_request', middleware.userExtractor, async (req, res,next) => {
-  const body = req.body
-  const user = req.user
-
-  const userToSendRequestTo = await User.findOne(body)
-
-  userToSendRequestTo.friendRequest = userToSendRequestTo.friendRequest.concat(user._id)
-
-  await userToSendRequestTo.save()
-
-  res.status(201).end()
-
-  next()
-
-})
 module.exports = userRoute

@@ -104,6 +104,28 @@ describe("Friend requests", () => {
       expect(loggedInUserInDb.friends).toHaveLength(1)
       expect(friendRequestUserInDb.friends).toHaveLength(1)
     })
+
+    test("Rejecting friend request", async () => {
+      const users = {
+        loggedInUser: {
+          username: 'kazuma'
+        },
+        friendRequestUser: {
+          username: 'flower'
+        }
+      }
+      await api.post('/OdinBook/friend-request/reject')
+        .send(users)
+        .set(header)
+        .expect(200)
+
+      const loggedInUserInDb = (await User.findOne({ username: 'kazuma' })).toJSON()
+      const friendRequestUserInDb = (await User.findOne({ username: 'flower' })).toJSON()
+
+      expect(loggedInUserInDb.friendRequests).toHaveLength(0)
+      expect(loggedInUserInDb.friends).toHaveLength(0)
+      expect(friendRequestUserInDb.friends).toHaveLength(0)
+    })
   })
 })
 

@@ -27,14 +27,14 @@ friendRequestRoute.post('/accept', middleware.userExtractor, async (req, res, ne
     res.status(401).json({
       error: "Token doesn't match user"
     })
-  
+
   const friendRequestUser = await User.findOne(body.friendRequestUser)
 
   user.friends = user.friends.concat(friendRequestUser._id)
   friendRequestUser.friends = friendRequestUser.friends.concat(user._id)
 
-  user.friendRequests = user.friendRequests.filter(_id => _id.toString() 
-  === friendRequestUser._id.toString()?false : true)
+  user.friendRequests = user.friendRequests.filter(_id => _id.toString()
+    === friendRequestUser._id.toString() ? false : true)
 
   await user.save()
   await friendRequestUser.save()
@@ -43,5 +43,23 @@ friendRequestRoute.post('/accept', middleware.userExtractor, async (req, res, ne
   next()
 })
 
+friendRequestRoute.post('/reject', middleware.userExtractor,async (req, res, next) => {
+  const body = req.body
+  const user = req.user
+
+  if (user.username !== body.loggedInUser.username)
+    res.status(401).json({
+      error: "Token doesn't match user"
+    })
+
+  const friendRequestUser = await User.findOne(body.friendRequestUser)
+  user.friendRequests = user.friendRequests.filter(_id => _id.toString()
+    === friendRequestUser._id.toString() ? false : true)
+  
+  await user.save()
+  res.status(200).end()
+
+  next()
+})
 
 module.exports = friendRequestRoute

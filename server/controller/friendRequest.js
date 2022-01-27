@@ -31,11 +31,13 @@ friendRequestRoute.post('/accept', middleware.userExtractor, async (req, res, ne
   const friendRequestUser = await User.findOne(body.friendRequestUser)
 
   user.friends = user.friends.concat(friendRequestUser._id)
+  friendRequestUser.friends = friendRequestUser.friends.concat(user._id)
+
   user.friendRequests = user.friendRequests.filter(_id => _id.toString() 
   === friendRequestUser._id.toString()?false : true)
 
   await user.save()
-
+  await friendRequestUser.save()
   res.status(201).json(friendRequestUser)
 
   next()

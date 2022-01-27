@@ -97,10 +97,12 @@ describe("Friend requests", () => {
         .set(header)
         .expect(201)
 
-      const userInDb = (await User.findOne({ username: 'kazuma' })).toJSON()
+      const loggedInUserInDb = (await User.findOne({ username: 'kazuma' })).toJSON()
+      const friendRequestUserInDb = (await User.findOne({ username: 'flower' })).toJSON()
 
-      expect(userInDb.friendRequests).toHaveLength(0)
-      expect(userInDb.friends).toHaveLength(1)
+      expect(loggedInUserInDb.friendRequests).toHaveLength(0)
+      expect(loggedInUserInDb.friends).toHaveLength(1)
+      expect(friendRequestUserInDb.friends).toHaveLength(1)
     })
   })
 })

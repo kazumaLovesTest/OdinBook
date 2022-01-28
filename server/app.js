@@ -1,7 +1,6 @@
 const express = require('express')
 const app = express()
 const cors = require('cors')
-const moongose = require('mongoose')
 const userRoute = require('./controller/user')
 const loginRoute = require('./controller/login')
 const resetRoute = require('./controller/reset')
@@ -9,13 +8,10 @@ const friendRequestRoute = require('./controller/friendRequest')
 const config = require('./utils/config')
 const middleware = require('./utils/middleware')
 
-
-
-moongose.connect(config.MONGODB_URI, () => {
-  console.log(`connected to ${config.MONGODB_URI}`)
-}).catch(err =>{
-  console.log(`couldnt connect because ${err.message}`)
-})
+if (process.env.NODE_ENV === "test") 
+  config.initializeMongoServer()
+else
+  config.connectToMongoServer()
 
 app.use(express.json())
 app.use(cors())
@@ -26,7 +22,4 @@ app.use('/OdinBook/login',loginRoute)
 app.use('/OdinBook/friend-request',friendRequestRoute)
 app.use(middleware.handleValidationError)
 
-
-if (process.env.NODE_ENV === "test")
-  app.use('/OdinBook/reset',resetRoute)
 module.exports = app

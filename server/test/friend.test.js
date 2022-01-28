@@ -56,7 +56,7 @@ describe("Friend requests", () => {
 
     const userInDb = (await User.findOne(userToSendRequestTo)).toJSON()
 
-    expect(userInDb.friendRequest).toHaveLength(1)
+    expect(userInDb.friendRequests).toHaveLength(1)
   }, 20000)
 
   test('user can not send friend request if no token is provided', async () => {

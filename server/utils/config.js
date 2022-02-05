@@ -7,8 +7,8 @@ const PORT = process.env.PORT
 const MONGODB_URI = process.env.MONGODB_URI
 
 function connectToMongoServer () {
-  mongoose.connect(config.MONGODB_URI, () => {
-    console.log(`connected to ${config.MONGODB_URI}`)
+  mongoose.connect(MONGODB_URI, () => {
+    console.log(`connected to ${MONGODB_URI}`)
   }).catch(err => {
     console.log(`couldnt connect because ${err.message}`)
   })

@@ -5,6 +5,7 @@ const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 const User = require('../model/user')
 const Post = require('../model/post')
+const user = require('../model/user')
 
 describe('Posts', () => {
 
@@ -116,6 +117,31 @@ describe('Posts', () => {
         .expect(401)
 
       expect(postInDb.body.likes).not.toBeDefined()
+    })
+    test("Posts can be deleted by the user who created it", async() => {
+      postInDb = postInDb.toJSON()
+      await api.delete(`/OdinBook/posts/${postInDb.id}`)
+        .send(postInDb)
+        .set(header)
+        .expect(204)
+
+      postInDb = await Post.findById(postInDb.id)
+      const userInDb = (await User.findOne({username: 'kazuma'})).toJSON()
+
+      expect(postInDb).toBe(null)
+      expect(userInDb.posts).toHaveLength(0)
+    })
+    test("Posts can not be deleted by anyone except for the user who created it", async() => {
+      postInDb = postInDb.toJSON()
+      await api.delete(`/OdinBook/posts/${postInDb.id}`)
+        .send(postInDb)
+        .expect(401)
+
+      postInDb = await Post.findById(postInDb.id)
+      const userInDb = (await User.findOne({username: 'kazuma'})).toJSON()
+
+      expect(postInDb).toBeDefined()
+      expect(userInDb.posts).toHaveLength(1)
     })
   })
 })

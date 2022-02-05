@@ -4,7 +4,7 @@ const middleware = require('../utils/middleware')
 
 postsRoute.post('/', middleware.userExtractor, async (req, res, next) => {
   const body = req.body
-  const currentUser = req.user
+  const user = req.user
 
   if (!body.title || !body.content)
     return res.status(400).end()
@@ -12,14 +12,14 @@ postsRoute.post('/', middleware.userExtractor, async (req, res, next) => {
     ...body,
     likes: 0,
     comment: null,
-    user: currentUser._id
+    user: user._id
   })
 
   const postInDb = await newPost.save()
 
-  currentUser.posts = currentUser.posts.concat(postInDb._id)
+  user.posts = user.posts.concat(postInDb._id)
 
-  await currentUser.save()
+  await user.save()
 
   res.status(201).end()
 
@@ -39,9 +39,25 @@ postsRoute.put('/:id', middleware.userExtractor, async (req, res, next) => {
 
   const postInDb = await Post.findByIdAndUpdate(id,updatedBlog,{new:true})
 
-  res.status(201).json(postInDb).end()
+  res.status(201).json(postInDb)
 
   next()
 })
 
+postsRoute.delete('/:id', middleware.userExtractor,async(req,res,next) => {
+  const user = req.user
+  const body = req.body
+  const id = req.params.id
+
+  if (body.user.toString() !== user._id.toString())
+    return res.status(401).end()
+  
+  await Post.findByIdAndRemove(id)
+  user.posts = user.posts.filter(_id => _id.toString() === id? false:true)
+  await user.save()
+
+  res.status(204).end()
+
+  next()
+})
 module.exports = postsRoute

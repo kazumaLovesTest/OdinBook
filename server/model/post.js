@@ -9,18 +9,18 @@ const postSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  comments: [{
-    type: String,
-    required: false
-  }],
-  likes: {
-    type: Number,
-    required: false
+  like: {
+    type:mongoose.Schema.Types.ObjectId,
+    ref:'like'
   },
   user: {
-    type:mongoose.Schema.Types.ObjectId,
-    ref:'User',
-    required:true
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  date:{
+    type:Date,
+    default:Date.now
   }
 })
 

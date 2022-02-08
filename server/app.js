@@ -4,7 +4,7 @@ const cors = require('cors')
 const userRoute = require('./controller/user')
 const loginRoute = require('./controller/login')
 const friendRequestRoute = require('./controller/friendRequest')
-const postsRoute = require('./controller/posts')
+const postRoute = require('./controller/post')
 const config = require('./utils/config')
 const middleware = require('./utils/middleware')
 
@@ -20,7 +20,7 @@ app.use(middleware.tokenExtractor)
 app.use('/OdinBook/user', userRoute)
 app.use('/OdinBook/login',loginRoute)
 app.use('/OdinBook/friend-request',friendRequestRoute)
-app.use('/OdinBook/posts',postsRoute)
+app.use('/OdinBook/posts',postRoute)
 app.use(middleware.handleValidationError)
 
 module.exports = app

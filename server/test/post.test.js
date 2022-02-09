@@ -79,7 +79,7 @@ describe('Posts', () => {
       await Post.deleteMany({})
       userWhoCreatedPost = await User.findOne({ username: 'kazuma' })
 
-      const like = new Like ()
+      const like = new Like()
       const savedLike = await like.save()
 
       friendUser = new User({
@@ -91,7 +91,7 @@ describe('Posts', () => {
         title: "hello World",
         content: "I am alive",
         user: userWhoCreatedPost._id,
-        like:savedLike
+        like: savedLike,
       })
 
       post = await post.save()
@@ -100,7 +100,7 @@ describe('Posts', () => {
       userWhoCreatedPost.posts = userWhoCreatedPost.posts.concat(post._id)
       userWhoCreatedPost.friends = userWhoCreatedPost.friends.concat(friendUser)
 
-      await userWhoCreatedPost.save()
+      userWhoCreatedPost = await userWhoCreatedPost.save()
 
       friendToLogIn = {
         name: 'ayalew',
@@ -113,80 +113,104 @@ describe('Posts', () => {
         .expect(200)
 
       friendHeader = { 'Authorization': `bearer ${result.body.token}` }
+
+      post = post.toJSON()
+      userWhoCreatedPost = userWhoCreatedPost.toJSON()
     })
 
-
     test("Posts can be updated by the user who created it", async () => {
-      post = post.toJSON()
       const updatedPost = {
         title: "Lie",
         content: "it's kinda cool",
         user: post.user
       }
-      post = await api.put(`/OdinBook/posts/${post.id}`)
+      const savedPost = await api.put(`/OdinBook/posts/${post.id}`)
         .send(updatedPost)
         .set(header)
         .expect(201)
 
-      expect(post.body.content).toBe("it's kinda cool")
+      expect(savedPost.body.content).toBe("it's kinda cool")
     })
     test("Posts can not be updated by a user who did not create it", async () => {
-      post = post.toJSON()
       const updatedPost = {
         title: "Lie",
         content: "it's kinda cool",
         user: post.user
       }
-      post = await api.put(`/OdinBook/posts/${post.id}`)
+      const savedPost = await api.put(`/OdinBook/posts/${post.id}`)
         .send(updatedPost)
         .set(friendHeader)
         .expect(401)
 
-      expect(post.body.likes).not.toBeDefined()
+      expect(savedPost.body.likes).not.toBeDefined()
     })
     test("Posts can be deleted by the user who created it", async () => {
-      post = post.toJSON()
       await api.delete(`/OdinBook/posts/${post.id}`)
-        .send(post)
+        .send(userWhoCreatedPost)
         .set(header)
         .expect(204)
 
-      post = await Post.findById(post.id)
+      const postInDb = await Post.findById(post.id)
       const userInDb = (await User.findOne({ username: 'kazuma' })).toJSON()
 
-      expect(post).toBe(null)
+      expect(postInDb).toBe(null)
       expect(userInDb.posts).toHaveLength(0)
     })
     test("Posts can not be deleted by anyone except for the user who created it", async () => {
-      post = post.toJSON()
       await api.delete(`/OdinBook/posts/${post.id}`)
-        .send(post)
+        .send(userWhoCreatedPost)
         .set(friendHeader)
         .expect(401)
 
-      post = await Post.findById(post.id)
+      const postInDb = await Post.findById(post.id)
       const userInDb = (await User.findOne({ username: 'kazuma' })).toJSON()
 
-      expect(post).toBeDefined()
+      expect(postInDb).toBeDefined()
       expect(userInDb.posts).toHaveLength(1)
     })
     test("Posts can be liked by user who created it and by other users", async () => {
-      post = post.toJSON()
-      const likeId = post.like.toJSON()
 
-     let like = await api.put(`/OdinBook/posts/like/${likeId}`)
+      const likeId = post.like.id
+
+      let like = await api.put(`/OdinBook/posts/like/${likeId}`)
         .set(header)
         .expect(201)
 
-     expect(like.body.count).toBe(1)
-     expect(like.body.authors).toHaveLength(1)
+      expect(like.body.count).toBe(1)
+      expect(like.body.authors).toHaveLength(1)
 
-     like = await api.put(`/OdinBook/posts/like/${likeId}`)
+      like = await api.put(`/OdinBook/posts/like/${likeId}`)
         .set(friendHeader)
         .expect(201)
 
-     expect(like.body.count).toBe(2)
-     expect(like.body.authors).toHaveLength(2)
+      expect(like.body.count).toBe(2)
+      expect(like.body.authors).toHaveLength(2)
+    })
+
+    test.only("Posts can be commented by user who created it and by other users", async () => {
+
+      const comment = {
+        content: "this Post is amazing"
+      }
+      let updatedPost = await api.put(`/OdinBook/posts/comment/${post.id}`)
+        .send(comment)
+        .set(header)
+        .expect(201)
+
+      let comments = updatedPost.body.comments
+      expect(comments).toHaveLength(1)
+
+      const secondComment = {
+        content: "this Post sucks"
+      }
+      updatedPost = await api.put(`/OdinBook/posts/comment/${post.id}`)
+        .send(secondComment)
+        .set(friendHeader)
+        .expect(201)
+
+      comments = updatedPost.body.comments
+
+      expect(comments).toHaveLength(2)
     })
   })
 })

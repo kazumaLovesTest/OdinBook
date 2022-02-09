@@ -1,6 +1,7 @@
 const postRoute = require('express').Router()
 const Post = require('../model/post')
 const Like = require('../model/like')
+const Comment = require('../model/comment')
 const middleware = require('../utils/middleware')
 
 postRoute.post('/', middleware.userExtractor, async (req, res, next) => {
@@ -64,13 +65,22 @@ postRoute.put('/like/:id', middleware.userExtractor, async (req, res, next) => {
 
 postRoute.put('/comment/:id', middleware.userExtractor, async (req, res, next) => {
   const body = req.body
+  const user = req.user
   const id = req.params.id
 
-  const updatedBlog = { ...body }
+  const comment = new Comment ({
+    content:body.content,
+    user:user._id
+  })
 
-  await Post.findByIdAndUpdate(id, updatedBlog, { new: true })
+  const savedComment = await comment.save()
 
-  res.status(201).end()
+  const post = await Post.findById(id)
+  post.comments = post.comments.concat(savedComment._id)
+
+  const updatedPost = await post.save()
+
+  res.status(201).json(updatedPost)
 
   next()
 })
@@ -80,7 +90,7 @@ postRoute.delete('/:id', middleware.userExtractor, async (req, res, next) => {
   const body = req.body
   const id = req.params.id
 
-  if (body.user.toString() !== user._id.toString())
+  if (body.id.toString() !== user._id.toString())
     return res.status(401).end()
 
   await Post.findByIdAndRemove(id)
